@@ -1,6 +1,7 @@
 #pragma once
 
 #include "raylib.h"
+#include "config.h"
 
 enum MarioSize {
     SMALL,
@@ -13,10 +14,12 @@ typedef struct _mario {
     Vector2 vel;
     int width;
     int height;
+    Rectangle smallFrameRect;
+    Rectangle largeFrameRect;
     Texture2D smallMarioTexture;
     Texture2D largeMarioTexture;
 } Mario;
 
-Mario initMario();
+Mario initMario(enum MarioSize size);
 void updateMario(Mario *mario);
 void drawMario(Mario *mario);
