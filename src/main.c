@@ -14,7 +14,7 @@ int main()
 
     SetTargetFPS(60);
 
-    Mario mario = initMario(LARGE);
+    Mario mario = initMario(SMALL);
 
     while (!WindowShouldClose()) {
         BeginDrawing();

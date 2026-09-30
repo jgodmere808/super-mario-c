@@ -8,8 +8,21 @@ enum MarioSize {
     LARGE
 };
 
+enum MarioAnimation {
+    IDLE,
+    RUNNING,
+    JUMPING,
+    SKIDDING,
+    DIEING,
+    SWIMMING,
+    CLIMBING,
+    FLAGPOLE
+};
+
 typedef struct _mario {
     enum MarioSize size;
+    enum MarioAnimation animation;
+    float frameTimeCounter;
     Vector2 pos;
     Vector2 vel;
     int width;
