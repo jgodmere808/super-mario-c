@@ -17,12 +17,12 @@ Mario initMario(enum MarioSize size)
 
     switch (size) {
         case SMALL:
-            mario.width = 10;
-            mario.height = 20;
+            mario.width = 16 * FACTOR;
+            mario.height = 16 * FACTOR;
             break;
         case LARGE:
-            mario.width = 20;
-            mario.height = 40;
+            mario.width = 16 * FACTOR;
+            mario.height = 32 * FACTOR;
             break;
     }
 
@@ -32,6 +32,7 @@ Mario initMario(enum MarioSize size)
 void updateSmallAnimation(Mario *mario)
 {
     int frame;
+    float animationTime;
     float frameTime;
     mario->frameTimeCounter += GetFrameTime();
 
@@ -40,12 +41,35 @@ void updateSmallAnimation(Mario *mario)
             mario->smallFrameRect.x = 0;
             break;
         case RUNNING:
-            frameTime = 0.5 / 3;
-            if (mario->frameTimeCounter >= 0.5) {
+            animationTime = 0.3;
+            frameTime = animationTime / 3;
+            if (mario->frameTimeCounter >= animationTime) {
                 mario->frameTimeCounter = 0;
             }
             frame = mario->frameTimeCounter / frameTime;
-            mario->smallFrameRect.x = 16 * (frame + 1);
+            mario->smallFrameRect.x = 16 * (3 - frame);
+            break;
+        case JUMPING:
+            mario->smallFrameRect.x = 4 * 16;
+            break;
+        case SKIDDING:
+            mario->smallFrameRect.x = 5 * 16;
+            break;
+        case DIEING:
+            mario->smallFrameRect.x = 6 * 16;
+            break;
+        case SWIMMING:
+            animationTime = 0.3;
+            frameTime = animationTime / 3;
+            if (mario->frameTimeCounter >= animationTime) {
+                mario->frameTimeCounter = 0;
+            }
+            frame = mario->frameTimeCounter / frameTime;
+            mario->smallFrameRect.x = 16 * (9 - frame);
+            break;
+        case CLIMBING:
+            break;
+        case FLAGPOLE:
             break;
     }
 }

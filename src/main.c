@@ -1,8 +1,10 @@
 
 #include "raylib.h"
+#include <stdio.h>
 
 #include "config.h"
 #include "mario.h"
+#include "blocks/block_basic.h"
 
 int main()
 {
@@ -15,6 +17,9 @@ int main()
     SetTargetFPS(60);
 
     Mario mario = initMario(SMALL);
+    BlockBasic blockBasic = initBlockBasic((Vector2){ 100, 100 });
+
+    printf("%i %i\n", blockBasic.width, blockBasic.height);
 
     while (!WindowShouldClose()) {
         BeginDrawing();
@@ -22,6 +27,9 @@ int main()
 
             updateMario(&mario);
             drawMario(&mario);
+
+            updateBlockBasic(&blockBasic);
+            drawBlockBasic(&blockBasic);
 
         EndDrawing();
     }
