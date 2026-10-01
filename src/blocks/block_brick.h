@@ -3,7 +3,7 @@
 #include "raylib.h"
 #include "../config.h"
 
-typedef struct _block_basic {
+typedef struct _block_brick {
     float frameTimeCounter;
     Vector2 pos;
     Vector2 vel;
@@ -11,8 +11,8 @@ typedef struct _block_basic {
     int height;
     Rectangle frameRect;
     Texture2D texture;
-} BlockBasic;
+} BlockBrick;
 
-BlockBasic initBlockBasic();
-void updateBlockBasic(BlockBasic *blockBasic);
-void drawBlockBasic(BlockBasic *blockBasic);
+BlockBrick initBlockBrick(Vector2 pos);
+void updateBlockBrick(BlockBrick *blockBrick);
+void drawBlockBrick(BlockBrick *blockBrick);
