@@ -18,4 +18,5 @@ enum TileType {
 
 bool loadMap(enum MapSelection selection);
 bool isMapSolidAt(int row, int col);
-void drawMap(int cameraX);
+int getMapWidthPixels();
+void drawMap(float cameraX);

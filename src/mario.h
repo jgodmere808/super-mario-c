@@ -1,7 +1,10 @@
 #pragma once
 
+#include <math.h>
+
 #include "config.h"
 #include "texture_map.h"
+#include "map.h"
 
 enum MarioSize {
     SMALL,
@@ -24,6 +27,7 @@ typedef struct _mario {
     enum MarioAnimation animation;
     float frameTimeCounter;
     bool facingLeft;
+    bool onGround;
     Vector2 pos;
     Vector2 vel;
     int width;
@@ -36,4 +40,4 @@ typedef struct _mario {
 
 Mario initMario(Vector2 pos, enum MarioSize size);
 void updateMario(Mario *mario);
-void drawMario(Mario *mario);
+void drawMario(Mario *mario, float cameraX);

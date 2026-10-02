@@ -57,12 +57,8 @@ invalid:
 
 bool isMapSolidAt(int row, int col)
 {
-    if (
-        row < 0 || row >= map.rows ||
-        col < 0 || col >= map.cols
-    ) {
-        return false;
-    }
+    if (row < 0 || row >= map.rows) return false; // Space above / below map
+    if (col < 0 || col >= map.cols) return true;  // Level edges
 
     if (
         map.tileMap[row][col] == BLOCK_DIRT ||
@@ -74,7 +70,12 @@ bool isMapSolidAt(int row, int col)
     return false;
 }
 
-void drawMap(int cameraX)
+int getMapWidthPixels()
+{
+    return map.cols * 16 * FACTOR;
+}
+
+void drawMap(float cameraX)
 {
     int row, col;
     int firstCol, lastCol;
@@ -82,8 +83,8 @@ void drawMap(int cameraX)
     if (map.cols == 0) return;
     if (cameraX < 0) cameraX = 0;
 
-    firstCol = cameraX / 16;
-    lastCol = (cameraX + 255) / 16;
+    firstCol = (int)(cameraX / (16 * FACTOR));
+    lastCol = (int)((cameraX + SCREEN_WIDTH - 1) / (16 * FACTOR));
 
     if (lastCol >= map.cols) lastCol = map.cols - 1;
 
@@ -101,7 +102,7 @@ void drawMap(int cameraX)
                 texture,
                 (Rectangle){ 0, 0, 16, 16 },
                 (Rectangle){
-                    (col * 16 - cameraX) * FACTOR,
+                    col * 16 * FACTOR - cameraX,
                     (row * 16 + 16) * FACTOR,
                     16 * FACTOR,
                     16 * FACTOR

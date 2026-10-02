@@ -8,8 +8,8 @@
 int main()
 {
     // original resolution * 3
-    const int screenWidth = 256 * FACTOR;
-    const int screenHeight = 224 * FACTOR;
+    const int screenWidth  = SCREEN_WIDTH;
+    const int screenHeight = SCREEN_HEIGHT;
 
     InitWindow(screenWidth, screenHeight, "Super Mario!");
 
