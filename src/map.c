@@ -88,7 +88,7 @@ void drawMap(int cameraX)
                 (Rectangle){ 0, 0, 16, 16 },
                 (Rectangle){
                     (col * 16 - cameraX) * FACTOR,
-                    row * 16 * FACTOR,
+                    (row * 16 + 16) * FACTOR,
                     16 * FACTOR,
                     16 * FACTOR
                 },

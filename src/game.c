@@ -28,5 +28,5 @@ void updateGame()
 void drawGame()
 {
     drawMario(&game.mario);
-    drawMap();
+    drawMap(0);
 }
