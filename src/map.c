@@ -55,9 +55,23 @@ invalid:
     return false;
 }
 
-bool isMapSolidAt()
+bool isMapSolidAt(int row, int col)
 {
-    return true;
+    if (
+        row < 0 || row >= map.rows ||
+        col < 0 || col >= map.cols
+    ) {
+        return false;
+    }
+
+    if (
+        map.tileMap[row][col] == BLOCK_DIRT ||
+        map.tileMap[row][col] == BLOCK_BRICK
+    ) {
+        return true;
+    }
+
+    return false;
 }
 
 void drawMap(int cameraX)
