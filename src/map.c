@@ -9,7 +9,7 @@ typedef struct _map {
 
 static Map map;
 
-void loadMap(enum MapSelection selection)
+bool loadMap(enum MapSelection selection)
 {
     if (selection != MAP_1_1) return false;
 
@@ -34,9 +34,9 @@ void loadMap(enum MapSelection selection)
 
         for (size_t col = 0; col < length; col++) {
             switch (line[col]) {
-                case '.': map->tileMap[row][col] = BLOCK_EMPTY; break;
-                case 'D': map->tileMap[row][col] = BLOCK_DIRT; break;
-                case 'B': map->tileMap[row][col] = BLOCK_BRICK; break;
+                case '.': map.tileMap[row][col] = BLOCK_EMPTY; break;
+                case 'D': map.tileMap[row][col] = BLOCK_DIRT; break;
+                case 'B': map.tileMap[row][col] = BLOCK_BRICK; break;
                 default: goto invalid;
             }
         }
@@ -46,11 +46,56 @@ void loadMap(enum MapSelection selection)
     if (ferror(file) || row != MAX_TILE_ROWS) goto invalid;
 
     fclose(file);
-    map->rows = row;
-    map->cols = width;
+    map.rows = row;
+    map.cols = width;
     return true;
 
 invalid:
     fclose(file);
     return false;
+}
+
+bool isMapSolidAt()
+{
+    return true;
+}
+
+void drawMap(int cameraX)
+{
+    int row, col;
+    int firstCol, lastCol;
+
+    if (map.cols == 0) return;
+    if (cameraX < 0) cameraX = 0;
+
+    firstCol = cameraX / 16;
+    lastCol = (cameraX + 255) / 16;
+
+    if (lastCol >= map.cols) lastCol = map.cols - 1;
+
+    for (row = 0; row < map.rows; row++) {
+        for (col = firstCol; col <= lastCol; col++) {
+            Texture2D texture;
+
+            switch (map.tileMap[row][col]) {
+                case BLOCK_DIRT:  texture = textureMap.blockDirt;  break;
+                case BLOCK_BRICK: texture = textureMap.blockBrick; break;
+                case BLOCK_EMPTY: continue;
+            }
+
+            DrawTexturePro(
+                texture,
+                (Rectangle){ 0, 0, 16, 16 },
+                (Rectangle){
+                    (col * 16 - cameraX) * FACTOR,
+                    row * 16 * FACTOR,
+                    16 * FACTOR,
+                    16 * FACTOR
+                },
+                (Vector2){ 0, 0 },
+                0,
+                WHITE
+            );
+        }
+    }
 }

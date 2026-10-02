@@ -1,6 +1,6 @@
 #pragma once
 
-#include "raylib.h"
+#include "config.h"
 
 typedef struct _texture_map {
     Texture2D marioSmall;

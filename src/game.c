@@ -2,25 +2,31 @@
 #include "game.h"
 
 typedef struct _game {
-    Map map;
     Mario mario;
 } Game;
 
 static Game game;
 
-void initGame()
+bool initGame()
 {
-    Game game = {
+    if (!loadMap(MAP_1_1)) {
+        return false;
+    }
+
+    game = (Game){
         .mario = initMario(SMALL)
     };
+
+    return true;
 }
 
 void updateGame()
 {
-    return;
+    updateMario(&game.mario);
 }
 
 void drawGame()
 {
     drawMario(&game.mario);
+    drawMap();
 }

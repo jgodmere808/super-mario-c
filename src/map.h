@@ -1,7 +1,7 @@
 #pragma once
 
-#include "raylib.h"
-#include "blocks/blocks.h"
+#include "config.h"
+#include "texture_map.h"
 
 #define MAX_TILE_ROWS   13
 #define MAX_TILE_COLS 1024
@@ -16,4 +16,6 @@ enum TileType {
     BLOCK_BRICK
 };
 
-void loadMap(enum MapSelection selection);
+bool loadMap(enum MapSelection selection);
+bool isMapSolidAt();
+void drawMap();

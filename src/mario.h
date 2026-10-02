@@ -1,8 +1,7 @@
 #pragma once
 
-#include "raylib.h"
-#include "texture_map.h"
 #include "config.h"
+#include "texture_map.h"
 
 enum MarioSize {
     SMALL,
