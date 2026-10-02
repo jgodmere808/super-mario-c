@@ -14,7 +14,7 @@ bool initGame()
     }
 
     game = (Game){
-        .mario = initMario(SMALL)
+        .mario = initMario((Vector2){ 32 * FACTOR, 176 * FACTOR }, SMALL)
     };
 
     return true;

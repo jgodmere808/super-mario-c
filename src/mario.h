@@ -33,6 +33,6 @@ typedef struct _mario {
     Texture2D largeMarioTexture;
 } Mario;
 
-Mario initMario(enum MarioSize size);
+Mario initMario(Vector2 pos, enum MarioSize size);
 void updateMario(Mario *mario);
 void drawMario(Mario *mario);

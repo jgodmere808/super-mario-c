@@ -1,13 +1,13 @@
 
 #include "mario.h"
 
-Mario initMario(enum MarioSize size)
+Mario initMario(Vector2 pos, enum MarioSize size)
 {
     Mario mario = {
         .size = size,
         .animation = IDLE,
         .frameTimeCounter = 0,
-        .pos = { 0, 0 },
+        .pos = pos,
         .vel = { 0, 0 },
         .smallFrameRect = { 0, 0, 16, 16 },
         .largeFrameRect = { 0, 0, 16, 32 },
