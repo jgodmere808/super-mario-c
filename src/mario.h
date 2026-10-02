@@ -23,6 +23,7 @@ typedef struct _mario {
     enum MarioSize size;
     enum MarioAnimation animation;
     float frameTimeCounter;
+    bool facingLeft;
     Vector2 pos;
     Vector2 vel;
     int width;

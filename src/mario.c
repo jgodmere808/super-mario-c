@@ -7,6 +7,7 @@ Mario initMario(Vector2 pos, enum MarioSize size)
         .size = size,
         .animation = IDLE,
         .frameTimeCounter = 0,
+        .facingLeft = false,
         .pos = pos,
         .vel = { 0, 0 },
         .smallFrameRect = { 0, 0, 16, 16 },
@@ -41,7 +42,7 @@ void updateSmallAnimation(Mario *mario)
             mario->smallFrameRect.x = 0;
             break;
         case RUNNING:
-            animationTime = 0.3;
+            animationTime = 0.35;
             frameTime = animationTime / 3;
             if (mario->frameTimeCounter >= animationTime) {
                 mario->frameTimeCounter = 0;
@@ -90,13 +91,15 @@ void updateLargeAnimation(Mario *mario)
 
 void updateMario(Mario *mario)
 {
-    if (IsKeyDown(KEY_RIGHT) && !IsKeyDown(KEY_LEFT)) {
+    if (!IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_RIGHT)) {
         if (mario->animation != RUNNING) mario->frameTimeCounter = 0;
         mario->animation = RUNNING;
+        mario->facingLeft = false;
     }
     if (IsKeyDown(KEY_LEFT) && !IsKeyDown(KEY_RIGHT)) {
         if (mario->animation != RUNNING) mario->frameTimeCounter = 0;
         mario->animation = RUNNING;
+        mario->facingLeft = true;
     }
     if (
         (IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_RIGHT)) ||
@@ -118,23 +121,19 @@ void updateMario(Mario *mario)
 
 void drawMario(Mario *mario)
 {
-    if (mario->size == SMALL) {
-        DrawTexturePro(
-            mario->smallMarioTexture,
-            mario->smallFrameRect,
-            (Rectangle){ mario->pos.x, mario->pos.y, 16 * FACTOR, 16 * FACTOR },
-            (Vector2){ 0, 0 },
-            0.0f,
-            WHITE
-        );
-    } else if (mario->size == LARGE) {
-        DrawTexturePro(
-            mario->largeMarioTexture,
-            mario->largeFrameRect,
-            (Rectangle){ mario->pos.x, mario->pos.y, 16 * FACTOR, 32 * FACTOR },
-            (Vector2){ 0, 0 },
-            0.0f,
-            WHITE
-        );
+    Rectangle source = mario->size == SMALL
+        ? mario->smallFrameRect : mario->largeFrameRect;
+
+    if (mario->facingLeft) {
+        source.width = -source.width;
     }
+    
+    DrawTexturePro(
+        mario->smallMarioTexture,
+        source,
+        (Rectangle){ mario->pos.x, mario->pos.y, 16 * FACTOR, 16 * FACTOR },
+        (Vector2){ 0, 0 },
+        0.0f,
+        WHITE
+    );
 }
