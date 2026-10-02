@@ -1,6 +1,7 @@
 #pragma once
 
 #include "raylib.h"
+#include "../texture_map.h"
 #include "../config.h"
 
 typedef struct _block_brick {

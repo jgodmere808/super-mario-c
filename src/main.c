@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "config.h"
+#include "texture_map.h"
 #include "mario.h"
 #include "blocks/block_brick.h"
 #include "blocks/block_dirt.h"
@@ -16,6 +17,8 @@ int main()
     InitWindow(screenWidth, screenHeight, "Super Mario!");
 
     SetTargetFPS(60);
+
+    initTextureMap();
 
     Mario mario = initMario(SMALL);
     BlockBrick blockBrick = initBlockBrick((Vector2){ 100, 100 });

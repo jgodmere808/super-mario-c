@@ -11,8 +11,8 @@ Mario initMario(enum MarioSize size)
         .vel = { 0, 0 },
         .smallFrameRect = { 0, 0, 16, 16 },
         .largeFrameRect = { 0, 0, 16, 32 },
-        .smallMarioTexture = LoadTexture("resources/mario-small.png"),
-        .largeMarioTexture = LoadTexture("resources/mario-large.png")
+        .smallMarioTexture = textureMap.marioSmall,
+        .largeMarioTexture = textureMap.marioLarge
     };
 
     switch (size) {

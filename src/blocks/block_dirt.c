@@ -10,7 +10,7 @@ BlockDirt initBlockDirt(Vector2 pos)
         .width = 16 * FACTOR,
         .height = 16 * FACTOR,
         .frameRect = { 0, 0, 16, 16 },
-        .texture = LoadTexture("resources/block-dirt.png")
+        .texture = textureMap.blockDirt
     };
 
     return blockDirt;
