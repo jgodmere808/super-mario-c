@@ -1,14 +1,19 @@
 #pragma once
 
+#include "raylib.h"
 #include "blocks/blocks.h"
 
 #define MAX_TILE_ROWS   13
 #define MAX_TILE_COLS 1024
 
-typedef struct _tile_map {
-    enum BlockType blocks[MAX_TILE_ROWS][MAX_TILE_COLS];
-} TileMap;
+enum MapSelection {
+    MAP_1_1
+};
 
-typedef struct _map {
-    TileMap tileMap;
-} Map;
+enum TileType {
+    BLOCK_EMPTY,
+    BLOCK_DIRT,
+    BLOCK_BRICK
+};
+
+void loadMap(enum MapSelection selection);
