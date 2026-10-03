@@ -1,13 +1,62 @@
 
 #include "map.h"
 
+#define MAX_SCENERY_OBJECTS 64
+
+enum SceneryType {
+    CLOUD_SMALL, CLOUD_MEDIUM, CLOUD_LARGE,
+    BUSH_SMALL, BUSH_MEDIUM, BUSH_LARGE,
+    HILL_SMALL, HILL_LARGE, CASTLE
+};
+
+typedef struct _scenery_object {
+    enum SceneryType type;
+    int x;
+    int y;
+} SceneryObject;
+
 typedef struct _map {
     enum TileType tileMap[MAX_TILE_ROWS][MAX_TILE_COLS];
+    SceneryObject scenery[MAX_SCENERY_OBJECTS];
+    int sceneryCount;
     int rows;
     int cols;
 } Map;
 
 static Map map;
+
+static bool parseSceneryType(const char *name, enum SceneryType *type)
+{
+    static const char *names[] = {
+        "cloud-small", "cloud-medium", "cloud-large",
+        "bush-small", "bush-medium", "bush-large",
+        "hill-small", "hill-large", "castle"
+    };
+
+    for (int i = 0; i < (int)(sizeof(names) / sizeof(names[0])); i++) {
+        if (strcmp(name, names[i]) == 0) {
+            *type = (enum SceneryType)i;
+            return true;
+        }
+    }
+    return false;
+}
+
+static Texture2D sceneryTexture(enum SceneryType type)
+{
+    switch (type) {
+        case CLOUD_SMALL:  return textureMap.cloudSmall;
+        case CLOUD_MEDIUM: return textureMap.cloudMedium;
+        case CLOUD_LARGE:  return textureMap.cloudLarge;
+        case BUSH_SMALL:   return textureMap.bushSmall;
+        case BUSH_MEDIUM:  return textureMap.bushMedium;
+        case BUSH_LARGE:   return textureMap.bushLarge;
+        case HILL_SMALL:   return textureMap.hillSmall;
+        case HILL_LARGE:   return textureMap.hillLarge;
+        case CASTLE:       return textureMap.castle;
+    }
+    return (Texture2D){ 0 };
+}
 
 bool loadMap(enum MapSelection selection)
 {
@@ -19,13 +68,18 @@ bool loadMap(enum MapSelection selection)
     char line[MAX_TILE_COLS + 3];
     int row = 0;
     int width = 0;
+    bool inScenery = false;
 
-    while (fgets(line, sizeof(line), file)) {
+    map.rows = 0;
+    map.cols = 0;
+    map.sceneryCount = 0;
+
+    while (row < MAX_TILE_ROWS && fgets(line, sizeof(line), file)) {
         size_t length = strcspn(line, "\r\n");
 
         if (
-            row >= MAX_TILE_ROWS || length == 0 ||
-            length > MAX_TILE_COLS || (width != 0 && length != (size_t)width)
+            length == 0 || length > MAX_TILE_COLS ||
+            (width != 0 && length != (size_t)width)
         ) {
             goto invalid;
         }
@@ -45,6 +99,44 @@ bool loadMap(enum MapSelection selection)
     }
 
     if (ferror(file) || row != MAX_TILE_ROWS) goto invalid;
+
+    while (fgets(line, sizeof(line), file)) {
+        size_t length = strcspn(line, "\r\n");
+        line[length] = '\0';
+        if (length == 0 || line[0] == '#') continue;
+
+        if (!inScenery) {
+            if (strcmp(line, "[scenery]") != 0) goto invalid;
+            inScenery = true;
+            continue;
+        }
+
+        char name[32];
+        char extra;
+        float tileX, tileY;
+        enum SceneryType type;
+        if (
+            map.sceneryCount >= MAX_SCENERY_OBJECTS ||
+            sscanf(line, "%31s %f %f %c", name, &tileX, &tileY, &extra) != 3 ||
+            !parseSceneryType(name, &type) || !isfinite(tileX) || !isfinite(tileY)
+        ) goto invalid;
+
+        Texture2D texture = sceneryTexture(type);
+        float pixelX = tileX * 16.0f;
+        float pixelY = tileY * 16.0f;
+        if (
+            texture.width <= 0 || texture.height <= 0 ||
+            pixelX < 0 || pixelY < 0 ||
+            pixelX + texture.width > width * 16 ||
+            pixelY + texture.height > SCREEN_HEIGHT / FACTOR
+        ) goto invalid;
+
+        map.scenery[map.sceneryCount++] = (SceneryObject){
+            type, (int)lroundf(pixelX), (int)lroundf(pixelY)
+        };
+    }
+
+    if (ferror(file)) goto invalid;
 
     fclose(file);
     map.rows = row;
@@ -84,6 +176,20 @@ void drawMap(float cameraX)
 
     if (map.cols == 0) return;
     if (cameraX < 0) cameraX = 0;
+
+    for (int i = 0; i < map.sceneryCount; i++) {
+        SceneryObject object = map.scenery[i];
+        Texture2D texture = sceneryTexture(object.type);
+        DrawTexturePro(
+            texture,
+            (Rectangle){ 0, 0, texture.width, texture.height },
+            (Rectangle){
+                object.x * FACTOR - cameraX, object.y * FACTOR,
+                texture.width * FACTOR, texture.height * FACTOR
+            },
+            (Vector2){ 0, 0 }, 0, WHITE
+        );
+    }
 
     firstCol = (int)(cameraX / (16 * FACTOR));
     lastCol = (int)((cameraX + SCREEN_WIDTH - 1) / (16 * FACTOR));

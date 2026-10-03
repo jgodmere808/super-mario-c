@@ -8,6 +8,15 @@ typedef struct _texture_map {
     Texture2D blockDirt;
     Texture2D blockBrick;
     Texture2D blockStone;
+    Texture2D cloudSmall;
+    Texture2D cloudMedium;
+    Texture2D cloudLarge;
+    Texture2D bushSmall;
+    Texture2D bushMedium;
+    Texture2D bushLarge;
+    Texture2D hillSmall;
+    Texture2D hillLarge;
+    Texture2D castle;
 } TextureMap;
 
 TextureMap textureMap;

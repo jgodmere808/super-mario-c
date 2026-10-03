@@ -11,3 +11,47 @@
 ......................................................................................................................................SSSS..SSSS....SSSSS..SSSS......................SSSSSSSSS........S.........................
 DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD..DDDDDDDDDDDDDDD...DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD..DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
 DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD..DDDDDDDDDDDDDDD...DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD..DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+
+[scenery]
+# Type x y; coordinates use 16-pixel tiles from the top-left of the screen.
+# Quarter/half tiles preserve the original NES pixel placements.
+# Y positions account for this map's ground at pixel 192 (NES rip: 208).
+hill-large 0 9.75
+cloud-small 8.5 2
+bush-large 11.5 11
+hill-small 16 10.75
+cloud-small 19.5 1
+bush-small 23.5 11
+cloud-large 27.5 2
+cloud-medium 36.5 1
+bush-medium 41.5 11
+hill-large 48 9.75
+cloud-small 56.5 2
+bush-large 59.5 11
+hill-small 64 10.75
+cloud-small 67.5 1
+bush-small 71.5 11
+cloud-large 75.5 2
+cloud-medium 84.5 1
+bush-medium 89.5 11
+hill-large 96 9.75
+cloud-small 104.5 2
+bush-large 107.5 11
+hill-small 112 10.75
+cloud-small 115.5 1
+bush-small 119.5 11
+cloud-large 123.5 2
+cloud-medium 132.5 1
+bush-medium 137.5 11
+hill-large 144 9.75
+cloud-small 152.5 2
+bush-large 155.5 11
+hill-small 160 10.75
+cloud-small 163.5 1
+bush-small 167.5 11
+cloud-large 171.5 2
+cloud-medium 180.5 1
+hill-large 192 9.75
+cloud-small 200.5 2
+castle 202 7
+hill-small 208 10.75
