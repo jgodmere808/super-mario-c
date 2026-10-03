@@ -2,7 +2,7 @@
 #include "mario.h"
 
 #define JUMP_VELOCITY -650.0f
-#define MARIO_TOP_SPEED 300.0f
+#define MARIO_TOP_SPEED 250.0f
 
 #define TILE_SIZE (16 * FACTOR)
 
