@@ -1,7 +1,7 @@
 
 #include "mario.h"
 
-#define JUMP_VELOCITY -440.0f
+#define JUMP_VELOCITY -650.0f
 #define MARIO_TOP_SPEED 400.0f
 
 #define TILE_SIZE (16 * FACTOR)
@@ -219,7 +219,7 @@ void updateMario(Mario *mario)
     mario->vel.y += GRAVITY * dt;
     if (mario->vel.x > MARIO_TOP_SPEED) mario->vel.x = MARIO_TOP_SPEED;
     if (mario->vel.x < -MARIO_TOP_SPEED) mario->vel.x = -MARIO_TOP_SPEED;
-    if (mario->vel.y > 600.0f) mario->vel.y = 600.0f;
+    if (mario->vel.y > 900.0f) mario->vel.y = 900.0f;
 
     moveMarioHorizontally(mario, dt);
     moveMarioVertically(mario, dt);
