@@ -21,6 +21,7 @@ typedef struct _map {
     int sceneryCount;
     int rows;
     int cols;
+    const char *musicPath;
 } Map;
 
 static Map map;
@@ -141,11 +142,17 @@ bool loadMap(enum MapSelection selection)
     fclose(file);
     map.rows = row;
     map.cols = width;
+    map.musicPath = "resources/audio/1-1-overworld.mp3";
     return true;
 
 invalid:
     fclose(file);
     return false;
+}
+
+const char *getMapMusicPath()
+{
+    return map.musicPath;
 }
 
 bool isMapSolidAt(int row, int col)

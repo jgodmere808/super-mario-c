@@ -5,5 +5,6 @@
 #include "mario.h"
 
 bool initGame();
+void endGame();
 void updateGame();
 void drawGame();

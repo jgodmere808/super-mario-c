@@ -15,6 +15,8 @@ int main()
 
     SetTargetFPS(60);
 
+    InitAudioDevice();
+
     initTextureMap();
     if (!initGame()) {
         return 1;
@@ -29,6 +31,10 @@ int main()
 
         EndDrawing();
     }
+
+    endGame();
+
+    CloseAudioDevice();
 
     CloseWindow();
 

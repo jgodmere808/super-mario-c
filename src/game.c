@@ -4,12 +4,18 @@
 typedef struct _game {
     Mario mario;
     float cameraX;
+    Music music;
 } Game;
 
 static Game game;
 
 bool initGame()
 {
+    // unload previous music if any
+    if (IsMusicValid(game.music)) {
+        UnloadMusicStream(game.music);
+    }
+
     if (!loadMap(MAP_1_1)) {
         return false;
     }
@@ -18,11 +24,24 @@ bool initGame()
         .mario = initMario((Vector2){ 32 * FACTOR, 176 * FACTOR }, SMALL)
     };
 
+    game.music = LoadMusicStream(getMapMusicPath());
+    if (!IsMusicValid(game.music)) return false;
+
+    game.music.looping = true;
+    PlayMusicStream(game.music);
+
     return true;
+}
+
+void endGame()
+{
+    UnloadMusicStream(game.music);
 }
 
 void updateGame()
 {
+    UpdateMusicStream(game.music);
+
     updateMario(&game.mario);
 
     float marioCenter = game.mario.pos.x + game.mario.width / 2.0f;

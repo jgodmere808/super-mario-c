@@ -18,6 +18,7 @@ enum TileType {
 };
 
 bool loadMap(enum MapSelection selection);
+const char *getMapMusicPath();
 bool isMapSolidAt(int row, int col);
 int getMapWidthPixels();
 void drawMap(float cameraX);
