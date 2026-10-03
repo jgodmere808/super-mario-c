@@ -2,7 +2,7 @@
 #include "mario.h"
 
 #define JUMP_VELOCITY -650.0f
-#define MARIO_TOP_SPEED 400.0f
+#define MARIO_TOP_SPEED 300.0f
 
 #define TILE_SIZE (16 * FACTOR)
 
@@ -136,7 +136,7 @@ void updateSmallAnimation(Mario *mario)
             mario->smallFrameRect.x = 0;
             break;
         case RUNNING:
-            animationTime = 0.35;
+            animationTime = 0.45;
             frameTime = animationTime / 3;
             if (mario->frameTimeCounter >= animationTime) {
                 mario->frameTimeCounter = 0;
@@ -148,7 +148,7 @@ void updateSmallAnimation(Mario *mario)
             mario->smallFrameRect.x = 5 * 16;
             break;
         case SKIDDING:
-            mario->smallFrameRect.x = 6 * 16;
+            mario->smallFrameRect.x = 4 * 16;
             break;
         case DIEING:
             mario->smallFrameRect.x = 7 * 16;
@@ -190,23 +190,40 @@ void updateMario(Mario *mario)
     if (dt > 1.0f / 30.0f) dt = 1.0f / 30.0f;
 
     if (!IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_RIGHT)) {
-        if (mario->animation != RUNNING) mario->frameTimeCounter = 0;
-        mario->animation = RUNNING;
+        if (mario->vel.x < 0) {
+            if (mario->animation != SKIDDING) mario->frameTimeCounter = 0;
+            mario->animation = SKIDDING;
+        } else {
+            if (mario->animation != RUNNING) mario->frameTimeCounter = 0;
+            mario->animation = RUNNING;
+        }
         mario->facingLeft = false;
-        mario->vel.x += 20.0f;
+        mario->vel.x += 5.0f;
     }
     if (IsKeyDown(KEY_LEFT) && !IsKeyDown(KEY_RIGHT)) {
-        if (mario->animation != RUNNING) mario->frameTimeCounter = 0;
-        mario->animation = RUNNING;
+        if (mario->vel.x > 0) {
+            if (mario->animation != SKIDDING) mario->frameTimeCounter = 0;
+            mario->animation = SKIDDING;
+        } else {
+            if (mario->animation != RUNNING) mario->frameTimeCounter = 0;
+            mario->animation = RUNNING;
+        }
         mario->facingLeft = true;
-        mario->vel.x -= 20.0f;
+        mario->vel.x -= 5.0f;
     }
+
     if (
         (IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_RIGHT)) ||
         (!IsKeyDown(KEY_LEFT) && !IsKeyDown(KEY_RIGHT))
     ) {
-        if (mario->animation != IDLE) mario->frameTimeCounter = 0;
-        mario->animation = IDLE;
+        if ((mario->vel.x > 0 ? mario->vel.x : -mario->vel.x) > 3.0f) {
+            if (mario->animation != RUNNING) mario->frameTimeCounter = 0;
+            mario->animation = RUNNING;
+            mario->vel.x *= 0.95;
+        } else {
+            if (mario->animation != IDLE) mario->frameTimeCounter = 0;
+            mario->animation = IDLE;
+        }
     }
     if (mario->onGround && IsKeyDown(KEY_SPACE)) {
         mario->onGround = false;
