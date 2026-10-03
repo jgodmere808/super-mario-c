@@ -7,6 +7,7 @@ void initTextureMap()
         .marioSmall = LoadTexture("resources/mario-small.png"),
         .marioLarge = LoadTexture("resources/mario-large.png"),
         .blockDirt = LoadTexture("resources/block-dirt.png"),
-        .blockBrick = LoadTexture("resources/block-brick.png")
+        .blockBrick = LoadTexture("resources/block-brick.png"),
+        .blockStone = LoadTexture("resources/block-stone.png")
     };
 }

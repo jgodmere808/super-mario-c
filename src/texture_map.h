@@ -7,6 +7,7 @@ typedef struct _texture_map {
     Texture2D marioLarge;
     Texture2D blockDirt;
     Texture2D blockBrick;
+    Texture2D blockStone;
 } TextureMap;
 
 TextureMap textureMap;

@@ -37,6 +37,7 @@ bool loadMap(enum MapSelection selection)
                 case '.': map.tileMap[row][col] = BLOCK_EMPTY; break;
                 case 'D': map.tileMap[row][col] = BLOCK_DIRT; break;
                 case 'B': map.tileMap[row][col] = BLOCK_BRICK; break;
+                case 'S': map.tileMap[row][col] = BLOCK_STONE; break;
                 default: goto invalid;
             }
         }
@@ -62,7 +63,8 @@ bool isMapSolidAt(int row, int col)
 
     if (
         map.tileMap[row][col] == BLOCK_DIRT ||
-        map.tileMap[row][col] == BLOCK_BRICK
+        map.tileMap[row][col] == BLOCK_BRICK ||
+        map.tileMap[row][col] == BLOCK_STONE
     ) {
         return true;
     }
@@ -95,6 +97,7 @@ void drawMap(float cameraX)
             switch (map.tileMap[row][col]) {
                 case BLOCK_DIRT:  texture = textureMap.blockDirt;  break;
                 case BLOCK_BRICK: texture = textureMap.blockBrick; break;
+                case BLOCK_STONE: texture = textureMap.blockStone; break;
                 case BLOCK_EMPTY: continue;
             }
 
