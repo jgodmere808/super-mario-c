@@ -216,10 +216,13 @@ void updateMario(Mario *mario)
         (IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_RIGHT)) ||
         (!IsKeyDown(KEY_LEFT) && !IsKeyDown(KEY_RIGHT))
     ) {
-        if ((mario->vel.x > 0 ? mario->vel.x : -mario->vel.x) > 3.0f) {
+        if ((mario->vel.x > 0 ? mario->vel.x : -mario->vel.x) > 5.0f) {
             if (mario->animation != RUNNING) mario->frameTimeCounter = 0;
             mario->animation = RUNNING;
             mario->vel.x *= 0.95;
+            if ((mario->vel.x > 0 ? mario->vel.x : -mario->vel.x) < 5.0f) {
+                mario->vel.x = 0;
+            }
         } else {
             if (mario->animation != IDLE) mario->frameTimeCounter = 0;
             mario->animation = IDLE;
