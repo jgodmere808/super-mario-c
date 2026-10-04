@@ -22,6 +22,7 @@ enum TileType {
 bool loadMap(enum MapSelection selection);
 const char *getMapMusicPath();
 bool isMapSolidAt(int row, int col);
+void hitMapBlock(int row, int col, bool smallMario);
 int getMapWidthPixels();
 void updateMap();
 void drawMap(float cameraX);

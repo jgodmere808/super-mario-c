@@ -3,6 +3,9 @@
 
 #define MAX_SCENERY_OBJECTS 64
 
+#define BUMP_DURATION 0.2f
+#define BUMP_HEIGHT (6.0f * FACTOR)
+
 enum SceneryType {
     CLOUD_SMALL, CLOUD_MEDIUM, CLOUD_LARGE,
     BUSH_SMALL, BUSH_MEDIUM, BUSH_LARGE,
@@ -17,6 +20,7 @@ typedef struct _scenery_object {
 
 typedef struct _map {
     enum TileType tileMap[MAX_TILE_ROWS][MAX_TILE_COLS];
+    float bumpRemaining[MAX_TILE_ROWS][MAX_TILE_COLS];
     SceneryObject scenery[MAX_SCENERY_OBJECTS];
     int sceneryCount;
     float mysteryBoxAnimationTimer;
@@ -58,6 +62,19 @@ static Texture2D sceneryTexture(enum SceneryType type)
         case CASTLE:       return textureMap.castle;
     }
     return (Texture2D){ 0 };
+}
+
+static float bumpOffsetPixels(int row, int col)
+{
+    float remaining = map.bumpRemaining[row][col];
+    if (remaining <= 0.0f) return 0.0f;
+
+    float progress = 1.0f - remaining / BUMP_DURATION;
+    float height = progress < 0.5
+        ? progress * 2.0f
+        : (1.0f - progress) * 2.0f;
+
+    return BUMP_HEIGHT * height;
 }
 
 bool loadMap(enum MapSelection selection)
@@ -147,6 +164,10 @@ bool loadMap(enum MapSelection selection)
     map.cols = width;
     map.mysteryBoxAnimationTimer = 0;
     map.musicPath = "resources/audio/1-1-overworld.mp3";
+    
+    // reset bump timers
+    memset(map.bumpRemaining, 0, sizeof(map.bumpRemaining));
+
     return true;
 
 invalid:
@@ -177,6 +198,20 @@ bool isMapSolidAt(int row, int col)
     return false;
 }
 
+void hitMapBlock(int row, int col, bool smallMario)
+{
+    if (row < 0 || row >= map.rows || col < 0 || col >= map.cols) return;
+
+    enum TileType tile = map.tileMap[row][col];
+    bool bumps = tile == BLOCK_MYSTERY_COIN ||
+                 tile == BLOCK_MYSTERY_POWERUP ||
+                 (tile == BLOCK_BRICK && smallMario);
+
+    if (bumps && map.bumpRemaining[row][col] <= 0.0f) {
+        map.bumpRemaining[row][col] = BUMP_DURATION;
+    }
+}
+
 int getMapWidthPixels()
 {
     return map.cols * 16 * FACTOR;
@@ -184,8 +219,22 @@ int getMapWidthPixels()
 
 void updateMap()
 {
+    int row, col;
+    float dt = GetFrameTime();
+    float *remaining;
+
     map.mysteryBoxAnimationTimer =
         fmodf(map.mysteryBoxAnimationTimer + GetFrameTime(), 6 * 0.12f);
+
+    for (row = 0; row < map.rows; row++) {
+        for (col = 0; col < map.cols; col++) {
+            remaining = &map.bumpRemaining[row][col];
+            if (*remaining > 0.0f) {
+                *remaining -= dt;
+                if (*remaining < 0.0f) *remaining = 0.0f;
+            }
+        }
+    }
 }
 
 void drawMap(float cameraX)
@@ -245,7 +294,7 @@ void drawMap(float cameraX)
                 source,
                 (Rectangle){
                     col * 16 * FACTOR - cameraX,
-                    (row * 16 + 16) * FACTOR,
+                    (row * 16 + 16) * FACTOR - bumpOffsetPixels(row, col),
                     16 * FACTOR,
                     16 * FACTOR
                 },

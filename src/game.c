@@ -42,8 +42,8 @@ void updateGame()
 {
     UpdateMusicStream(game.music);
 
-    updateMap();
     updateMario(&game.mario);
+    updateMap();
 
     float marioCenter = game.mario.pos.x + game.mario.width / 2.0f;
     float cameraTarget = marioCenter - SCREEN_WIDTH / 2.0f;

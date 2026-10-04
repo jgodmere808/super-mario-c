@@ -86,6 +86,12 @@ static void moveMarioVertically(Mario *mario, float dt)
             mario->onGround = true;
         } else {
             // Rising: place Mario's head below the tile.
+            int centerCol = columnAt(mario->pos.x + mario->width / 2);
+
+            if (isMapSolidAt(row, centerCol)) {
+                hitMapBlock(row, centerCol, mario->size == SMALL);
+            }
+
             mario->pos.y = (row + 2) * TILE_SIZE;
         }
 
