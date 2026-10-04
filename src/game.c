@@ -42,6 +42,7 @@ void updateGame()
 {
     UpdateMusicStream(game.music);
 
+    updateMap();
     updateMario(&game.mario);
 
     float marioCenter = game.mario.pos.x + game.mario.width / 2.0f;

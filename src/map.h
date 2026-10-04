@@ -23,4 +23,5 @@ bool loadMap(enum MapSelection selection);
 const char *getMapMusicPath();
 bool isMapSolidAt(int row, int col);
 int getMapWidthPixels();
+void updateMap();
 void drawMap(float cameraX);

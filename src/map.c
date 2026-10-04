@@ -182,10 +182,18 @@ int getMapWidthPixels()
     return map.cols * 16 * FACTOR;
 }
 
+void updateMap()
+{
+    map.mysteryBoxAnimationTimer =
+        fmodf(map.mysteryBoxAnimationTimer + GetFrameTime(), 6 * 0.12f);
+}
+
 void drawMap(float cameraX)
 {
     int row, col;
     int firstCol, lastCol;
+    int frame;
+    Rectangle source;
 
     if (map.cols == 0) return;
     if (cameraX < 0) cameraX = 0;
@@ -222,9 +230,19 @@ void drawMap(float cameraX)
                 case BLOCK_EMPTY: continue;
             }
 
+            if (
+                map.tileMap[row][col] == BLOCK_MYSTERY_POWERUP ||
+                map.tileMap[row][col] == BLOCK_MYSTERY_COIN
+            ) {
+                frame = (int)(map.mysteryBoxAnimationTimer / 0.12f);
+                source = (Rectangle){ frame * 16, 0, 16, 16 };
+            } else {
+                source = (Rectangle){ 0, 0, 16, 16 };
+            }
+
             DrawTexturePro(
                 texture,
-                (Rectangle){ 0, 0, 16, 16 },
+                source,
                 (Rectangle){
                     col * 16 * FACTOR - cameraX,
                     (row * 16 + 16) * FACTOR,
