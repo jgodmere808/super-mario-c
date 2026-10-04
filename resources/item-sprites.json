@@ -1,0 +1,21 @@
+{
+  "source": "https://nesmaps.com/maps/SuperMarioBrothers/sprites/SuperMarioBrothersSprites.html",
+  "coin_source": "https://nesmaps.com/maps/SuperMarioBrothers/sprites/CoinForBlueBG.gif",
+  "mushroom_source": "https://nesmaps.com/maps/SuperMarioBrothers/sprites/MagicMushroom.png",
+  "notes": "Original Super Mario Bros. NES item pixels. Coin GIF frames are centered without scaling in 16x16 transparent cells for the game's sprite-sheet renderer. The mushroom PNG is the source file unchanged.",
+  "coin": {
+    "image": "coin.png",
+    "frame_width": 16,
+    "frame_height": 16,
+    "frame_count": 6,
+    "sprite_width": 10,
+    "sprite_height": 14,
+    "sprite_offset_x": 3,
+    "sprite_offset_y": 1
+  },
+  "mushroom": {
+    "image": "mushroom.png",
+    "width": 16,
+    "height": 16
+  }
+}

@@ -2,9 +2,11 @@
 #include "map.h"
 
 #define MAX_SCENERY_OBJECTS 64
+#define MAX_BRICK_FRAGMENTS 64
 
 #define BUMP_DURATION 0.2f
 #define BUMP_HEIGHT (6.0f * FACTOR)
+#define FRAGMENT_LIFETIME 0.8f
 
 enum SceneryType {
     CLOUD_SMALL, CLOUD_MEDIUM, CLOUD_LARGE,
@@ -18,11 +20,19 @@ typedef struct _scenery_object {
     int y;
 } SceneryObject;
 
+typedef struct _brick_fragment {
+    Vector2 pos;
+    Vector2 vel;
+    Rectangle source;
+    float remaining;
+} BrickFragment;
+
 typedef struct _map {
     enum TileType tileMap[MAX_TILE_ROWS][MAX_TILE_COLS];
     float bumpRemaining[MAX_TILE_ROWS][MAX_TILE_COLS];
     SceneryObject scenery[MAX_SCENERY_OBJECTS];
     int sceneryCount;
+    BrickFragment fragments[MAX_BRICK_FRAGMENTS];
     float mysteryBoxAnimationTimer;
     int rows;
     int cols;
@@ -92,6 +102,7 @@ bool loadMap(enum MapSelection selection)
     map.rows = 0;
     map.cols = 0;
     map.sceneryCount = 0;
+    memset(map.fragments, 0, sizeof(map.fragments));
 
     while (row < MAX_TILE_ROWS && fgets(line, sizeof(line), file)) {
         size_t length = strcspn(line, "\r\n");
@@ -190,7 +201,8 @@ bool isMapSolidAt(int row, int col)
         map.tileMap[row][col] == BLOCK_BRICK ||
         map.tileMap[row][col] == BLOCK_STONE ||
         map.tileMap[row][col] == BLOCK_MYSTERY_COIN ||
-        map.tileMap[row][col] == BLOCK_MYSTERY_POWERUP
+        map.tileMap[row][col] == BLOCK_MYSTERY_POWERUP ||
+        map.tileMap[row][col] == BLOCK_USED
     ) {
         return true;
     }
@@ -198,18 +210,58 @@ bool isMapSolidAt(int row, int col)
     return false;
 }
 
-void hitMapBlock(int row, int col, bool smallMario)
+static void scatterBrick(int row, int col)
 {
-    if (row < 0 || row >= map.rows || col < 0 || col >= map.cols) return;
+    int piece = 0;
+    float x = col * 16 * FACTOR;
+    float y = (row + 1) * 16 * FACTOR;
+
+    for (int i = 0; i < MAX_BRICK_FRAGMENTS && piece < 4; i++) {
+        BrickFragment *fragment = &map.fragments[i];
+        if (fragment->remaining > 0.0f) continue;
+
+        int side = piece % 2;
+        int half = piece / 2;
+        *fragment = (BrickFragment){
+            .pos = { x + side * 8 * FACTOR, y + half * 8 * FACTOR },
+            .vel = {
+                side == 0 ? -120.0f : 120.0f,
+                half == 0 ? -360.0f : -240.0f
+            },
+            .source = { side * 8, half * 8, 8, 8 },
+            .remaining = FRAGMENT_LIFETIME
+        };
+        piece++;
+    }
+}
+
+enum BlockReward hitMapBlock(int row, int col, bool smallMario)
+{
+    if (row < 0 || row >= map.rows || col < 0 || col >= map.cols) {
+        return BLOCK_REWARD_NONE;
+    }
 
     enum TileType tile = map.tileMap[row][col];
-    bool bumps = tile == BLOCK_MYSTERY_COIN ||
-                 tile == BLOCK_MYSTERY_POWERUP ||
-                 (tile == BLOCK_BRICK && smallMario);
-
-    if (bumps && map.bumpRemaining[row][col] <= 0.0f) {
+    if (tile == BLOCK_MYSTERY_COIN || tile == BLOCK_MYSTERY_POWERUP) {
         map.bumpRemaining[row][col] = BUMP_DURATION;
+        map.tileMap[row][col] = BLOCK_USED;
+        return tile == BLOCK_MYSTERY_COIN
+            ? BLOCK_REWARD_COIN : BLOCK_REWARD_POWERUP;
     }
+
+    if (tile == BLOCK_BRICK) {
+        if (smallMario) {
+            if (map.bumpRemaining[row][col] <= 0.0f) {
+                map.bumpRemaining[row][col] = BUMP_DURATION;
+            }
+        } else {
+            map.tileMap[row][col] = BLOCK_EMPTY;
+            map.bumpRemaining[row][col] = 0.0f;
+            scatterBrick(row, col);
+        }
+    }
+
+    return BLOCK_REWARD_NONE;
 }
 
 int getMapWidthPixels()
@@ -221,6 +273,7 @@ void updateMap()
 {
     int row, col;
     float dt = GetFrameTime();
+    if (dt > 1.0f / 30.0f) dt = 1.0f / 30.0f;
     float *remaining;
 
     map.mysteryBoxAnimationTimer =
@@ -234,6 +287,16 @@ void updateMap()
                 if (*remaining < 0.0f) *remaining = 0.0f;
             }
         }
+    }
+
+    for (int i = 0; i < MAX_BRICK_FRAGMENTS; i++) {
+        BrickFragment *fragment = &map.fragments[i];
+        if (fragment->remaining <= 0.0f) continue;
+
+        fragment->remaining -= dt;
+        fragment->pos.x += fragment->vel.x * dt;
+        fragment->pos.y += fragment->vel.y * dt;
+        fragment->vel.y += GRAVITY * dt;
     }
 }
 
@@ -276,6 +339,7 @@ void drawMap(float cameraX)
                 case BLOCK_STONE: texture = textureMap.blockStone; break;
                 case BLOCK_MYSTERY_COIN: texture = textureMap.mysteryBox; break;
                 case BLOCK_MYSTERY_POWERUP: texture = textureMap.mysteryBox; break;
+                case BLOCK_USED: texture = textureMap.mysteryBox; break;
                 case BLOCK_EMPTY: continue;
             }
 
@@ -285,6 +349,8 @@ void drawMap(float cameraX)
             ) {
                 frame = (int)(map.mysteryBoxAnimationTimer / 0.12f);
                 source = (Rectangle){ frame * 16, 0, 16, 16 };
+            } else if (map.tileMap[row][col] == BLOCK_USED) {
+                source = (Rectangle){ 6 * 16, 0, 16, 16 };
             } else {
                 source = (Rectangle){ 0, 0, 16, 16 };
             }
@@ -303,5 +369,20 @@ void drawMap(float cameraX)
                 WHITE
             );
         }
+    }
+
+    for (int i = 0; i < MAX_BRICK_FRAGMENTS; i++) {
+        BrickFragment fragment = map.fragments[i];
+        if (fragment.remaining <= 0.0f) continue;
+
+        DrawTexturePro(
+            textureMap.blockBrick,
+            fragment.source,
+            (Rectangle){
+                fragment.pos.x - cameraX, fragment.pos.y,
+                8 * FACTOR, 8 * FACTOR
+            },
+            (Vector2){ 0, 0 }, 0, WHITE
+        );
     }
 }

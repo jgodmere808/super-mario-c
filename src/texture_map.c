@@ -1,6 +1,8 @@
 
 #include "texture_map.h"
 
+TextureMap textureMap;
+
 void initTextureMap()
 {
     textureMap = (TextureMap){
@@ -10,6 +12,8 @@ void initTextureMap()
         .blockBrick = LoadTexture("resources/block-brick.png"),
         .blockStone = LoadTexture("resources/block-stone.png"),
         .mysteryBox = LoadTexture("resources/block-mystery.png"),
+        .coin = LoadTexture("resources/coin.png"),
+        .mushroom = LoadTexture("resources/mushroom.png"),
         .cloudSmall = LoadTexture("resources/scenery/cloud-small.png"),
         .cloudMedium = LoadTexture("resources/scenery/cloud-medium.png"),
         .cloudLarge = LoadTexture("resources/scenery/cloud-large.png"),

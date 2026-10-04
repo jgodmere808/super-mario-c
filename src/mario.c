@@ -56,7 +56,7 @@ static void moveMarioHorizontally(Mario *mario, float dt)
     }
 }
 
-static void moveMarioVertically(Mario *mario, float dt)
+static void moveMarioVertically(Mario *mario, float dt, BlockHit *blockHit)
 {
     int row, col, leftCol, rightCol;
     float leadingY;
@@ -88,9 +88,9 @@ static void moveMarioVertically(Mario *mario, float dt)
             // Rising: place Mario's head below the tile.
             int centerCol = columnAt(mario->pos.x + mario->width / 2);
 
-            if (isMapSolidAt(row, centerCol)) {
-                hitMapBlock(row, centerCol, mario->size == SMALL);
-            }
+            blockHit->happened = true;
+            blockHit->row = row;
+            blockHit->col = isMapSolidAt(row, centerCol) ? centerCol : col;
 
             mario->pos.y = (row + 2) * TILE_SIZE;
         }
@@ -142,13 +142,7 @@ void updateSmallAnimation(Mario *mario)
             mario->smallFrameRect.x = 0;
             break;
         case RUNNING:
-            animationTime = 0.45;
-            frameTime = animationTime / 3;
-            if (mario->frameTimeCounter >= animationTime) {
-                mario->frameTimeCounter = 0;
-            }
-            frame = mario->frameTimeCounter / frameTime;
-            mario->smallFrameRect.x = 16 * (3 - frame);
+            mario->smallFrameRect.x = 16 * (1 + (int)(mario->frameTimeCounter / 0.15f) % 3);
             break;
         case JUMPING:
             mario->smallFrameRect.x = 5 * 16;
@@ -177,23 +171,31 @@ void updateSmallAnimation(Mario *mario)
 
 void updateLargeAnimation(Mario *mario)
 {
-    int i;
+    mario->frameTimeCounter += GetFrameTime();
 
     switch (mario->animation) {
         case IDLE:
-            mario->smallFrameRect.x = 0;
+            mario->largeFrameRect.x = 0;
             break;
         case RUNNING:
-            mario->smallFrameRect.x = 16 * 1;
+            mario->largeFrameRect.x = 16 * (1 + (int)(mario->frameTimeCounter / 0.15f) % 3);
+            break;
+        case JUMPING:
+            mario->largeFrameRect.x = 16 * 5;
+            break;
+        case SKIDDING:
+            mario->largeFrameRect.x = 16 * 4;
+            break;
+        default:
             break;
     }
 }
 
-void updateMario(Mario *mario)
+void updateMario(Mario *mario, BlockHit *blockHit)
 {
-    float nextX, nextY;
     float dt = GetFrameTime();
     if (dt > 1.0f / 30.0f) dt = 1.0f / 30.0f;
+    *blockHit = (BlockHit){ 0 };
 
     if (!IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_RIGHT)) {
         if (mario->vel.x < 0) {
@@ -248,7 +250,7 @@ void updateMario(Mario *mario)
     if (mario->vel.y > 900.0f) mario->vel.y = 900.0f;
 
     moveMarioHorizontally(mario, dt);
-    moveMarioVertically(mario, dt);
+    moveMarioVertically(mario, dt, blockHit);
 
     switch (mario->size) {
         case SMALL:
@@ -258,6 +260,18 @@ void updateMario(Mario *mario)
             updateLargeAnimation(mario);
             break;
     }
+}
+
+void growMario(Mario *mario)
+{
+    if (mario->size == LARGE) return;
+
+    // Keep Mario's feet in place when his height doubles.
+    mario->pos.y -= 16 * FACTOR;
+    mario->height = 32 * FACTOR;
+    mario->size = LARGE;
+    mario->largeFrameRect = (Rectangle){ 0, 0, 16, 32 };
+    mario->frameTimeCounter = 0.0f;
 }
 
 void drawMario(Mario *mario, float cameraX)
@@ -270,9 +284,9 @@ void drawMario(Mario *mario, float cameraX)
     }
     
     DrawTexturePro(
-        mario->smallMarioTexture,
+        mario->size == SMALL ? mario->smallMarioTexture : mario->largeMarioTexture,
         source,
-        (Rectangle){ mario->pos.x - cameraX, mario->pos.y, 16 * FACTOR, 16 * FACTOR },
+        (Rectangle){ mario->pos.x - cameraX, mario->pos.y, mario->width, mario->height },
         (Vector2){ 0, 0 },
         0.0f,
         WHITE

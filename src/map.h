@@ -16,13 +16,20 @@ enum TileType {
     BLOCK_BRICK,
     BLOCK_STONE,
     BLOCK_MYSTERY_COIN,
-    BLOCK_MYSTERY_POWERUP
+    BLOCK_MYSTERY_POWERUP,
+    BLOCK_USED
+};
+
+enum BlockReward {
+    BLOCK_REWARD_NONE,
+    BLOCK_REWARD_COIN,
+    BLOCK_REWARD_POWERUP
 };
 
 bool loadMap(enum MapSelection selection);
 const char *getMapMusicPath();
 bool isMapSolidAt(int row, int col);
-void hitMapBlock(int row, int col, bool smallMario);
+enum BlockReward hitMapBlock(int row, int col, bool smallMario);
 int getMapWidthPixels();
 void updateMap();
 void drawMap(float cameraX);

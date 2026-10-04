@@ -38,6 +38,13 @@ typedef struct _mario {
     Texture2D largeMarioTexture;
 } Mario;
 
+typedef struct {
+    bool happened;
+    int row;
+    int col;
+} BlockHit;
+
 Mario initMario(Vector2 pos, enum MarioSize size);
-void updateMario(Mario *mario);
+void updateMario(Mario *mario, BlockHit *blockHit);
+void growMario(Mario *mario);
 void drawMario(Mario *mario, float cameraX);

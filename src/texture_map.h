@@ -9,6 +9,8 @@ typedef struct _texture_map {
     Texture2D blockBrick;
     Texture2D blockStone;
     Texture2D mysteryBox;
+    Texture2D coin;
+    Texture2D mushroom;
     Texture2D cloudSmall;
     Texture2D cloudMedium;
     Texture2D cloudLarge;
@@ -20,6 +22,6 @@ typedef struct _texture_map {
     Texture2D castle;
 } TextureMap;
 
-TextureMap textureMap;
+extern TextureMap textureMap;
 
 void initTextureMap();
