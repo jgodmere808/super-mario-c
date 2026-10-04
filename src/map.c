@@ -19,6 +19,7 @@ typedef struct _map {
     enum TileType tileMap[MAX_TILE_ROWS][MAX_TILE_COLS];
     SceneryObject scenery[MAX_SCENERY_OBJECTS];
     int sceneryCount;
+    float mysteryBoxAnimationTimer;
     int rows;
     int cols;
     const char *musicPath;
@@ -93,6 +94,8 @@ bool loadMap(enum MapSelection selection)
                 case 'D': map.tileMap[row][col] = BLOCK_DIRT; break;
                 case 'B': map.tileMap[row][col] = BLOCK_BRICK; break;
                 case 'S': map.tileMap[row][col] = BLOCK_STONE; break;
+                case 'P': map.tileMap[row][col] = BLOCK_MYSTERY_POWERUP; break;
+                case 'M': map.tileMap[row][col] = BLOCK_MYSTERY_COIN; break;
                 default: goto invalid;
             }
         }
@@ -142,6 +145,7 @@ bool loadMap(enum MapSelection selection)
     fclose(file);
     map.rows = row;
     map.cols = width;
+    map.mysteryBoxAnimationTimer = 0;
     map.musicPath = "resources/audio/1-1-overworld.mp3";
     return true;
 
@@ -163,7 +167,9 @@ bool isMapSolidAt(int row, int col)
     if (
         map.tileMap[row][col] == BLOCK_DIRT ||
         map.tileMap[row][col] == BLOCK_BRICK ||
-        map.tileMap[row][col] == BLOCK_STONE
+        map.tileMap[row][col] == BLOCK_STONE ||
+        map.tileMap[row][col] == BLOCK_MYSTERY_COIN ||
+        map.tileMap[row][col] == BLOCK_MYSTERY_POWERUP
     ) {
         return true;
     }
@@ -211,6 +217,8 @@ void drawMap(float cameraX)
                 case BLOCK_DIRT:  texture = textureMap.blockDirt;  break;
                 case BLOCK_BRICK: texture = textureMap.blockBrick; break;
                 case BLOCK_STONE: texture = textureMap.blockStone; break;
+                case BLOCK_MYSTERY_COIN: texture = textureMap.mysteryBox; break;
+                case BLOCK_MYSTERY_POWERUP: texture = textureMap.mysteryBox; break;
                 case BLOCK_EMPTY: continue;
             }
 

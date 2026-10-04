@@ -14,7 +14,9 @@ enum TileType {
     BLOCK_EMPTY,
     BLOCK_DIRT,
     BLOCK_BRICK,
-    BLOCK_STONE
+    BLOCK_STONE,
+    BLOCK_MYSTERY_COIN,
+    BLOCK_MYSTERY_POWERUP
 };
 
 bool loadMap(enum MapSelection selection);
