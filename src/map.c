@@ -2,6 +2,7 @@
 #include "map.h"
 
 #define MAX_SCENERY_OBJECTS 64
+#define MAX_ENEMY_SPAWNS 64
 #define MAX_BRICK_FRAGMENTS 64
 
 #define BUMP_DURATION 0.2f
@@ -32,6 +33,10 @@ typedef struct _map {
     float bumpRemaining[MAX_TILE_ROWS][MAX_TILE_COLS];
     SceneryObject scenery[MAX_SCENERY_OBJECTS];
     int sceneryCount;
+    EnemySpawn enemySpawns[MAX_ENEMY_SPAWNS];
+    int enemyCount;
+    MapGoal goal;
+    bool hasGoal;
     BrickFragment fragments[MAX_BRICK_FRAGMENTS];
     float mysteryBoxAnimationTimer;
     int rows;
@@ -40,6 +45,19 @@ typedef struct _map {
 } Map;
 
 static Map map;
+
+static bool parseEnemyType(const char *name, enum EnemyType *type)
+{
+    if (strcmp(name, "goomba") == 0) {
+        *type = ENEMY_GOOMBA;
+        return true;
+    }
+    if (strcmp(name, "koopa-green") == 0) {
+        *type = ENEMY_KOOPA_GREEN;
+        return true;
+    }
+    return false;
+}
 
 static bool parseSceneryType(const char *name, enum SceneryType *type)
 {
@@ -97,11 +115,13 @@ bool loadMap(enum MapSelection selection)
     char line[MAX_TILE_COLS + 3];
     int row = 0;
     int width = 0;
-    bool inScenery = false;
+    enum { SECTION_NONE, SECTION_SCENERY, SECTION_ENEMIES, SECTION_GOAL } section = SECTION_NONE;
 
     map.rows = 0;
     map.cols = 0;
     map.sceneryCount = 0;
+    map.enemyCount = 0;
+    map.hasGoal = false;
     memset(map.fragments, 0, sizeof(map.fragments));
 
     while (row < MAX_TILE_ROWS && fgets(line, sizeof(line), file)) {
@@ -137,11 +157,58 @@ bool loadMap(enum MapSelection selection)
         line[length] = '\0';
         if (length == 0 || line[0] == '#') continue;
 
-        if (!inScenery) {
-            if (strcmp(line, "[scenery]") != 0) goto invalid;
-            inScenery = true;
+        if (strcmp(line, "[scenery]") == 0 && section == SECTION_NONE) {
+            section = SECTION_SCENERY;
             continue;
         }
+        if (strcmp(line, "[enemies]") == 0 && section == SECTION_SCENERY) {
+            section = SECTION_ENEMIES;
+            continue;
+        }
+        if (strcmp(line, "[goal]") == 0 && section == SECTION_ENEMIES) {
+            section = SECTION_GOAL;
+            continue;
+        }
+
+        if (section == SECTION_GOAL) {
+            char name[32], extra;
+            float poleX, topY, baseY, castleDoorX;
+            if (map.hasGoal ||
+                sscanf(line, "%31s %f %f %f %f %c", name,
+                       &poleX, &topY, &baseY, &castleDoorX, &extra) != 5 ||
+                strcmp(name, "flagpole") != 0 ||
+                !isfinite(poleX) || !isfinite(topY) || !isfinite(baseY) ||
+                !isfinite(castleDoorX) ||
+                poleX < 0 || poleX >= width || topY < 1 ||
+                baseY <= topY || baseY > SCREEN_HEIGHT / (16 * FACTOR) ||
+                castleDoorX <= poleX || castleDoorX >= width) goto invalid;
+            map.goal = (MapGoal){
+                poleX * 16 * FACTOR, topY * 16 * FACTOR,
+                baseY * 16 * FACTOR, castleDoorX * 16 * FACTOR
+            };
+            map.hasGoal = true;
+            continue;
+        }
+
+        if (section == SECTION_ENEMIES) {
+            char name[32], extra;
+            float tileX, tileY;
+            enum EnemyType type;
+            if (map.enemyCount >= MAX_ENEMY_SPAWNS ||
+                sscanf(line, "%31s %f %f %c", name, &tileX, &tileY, &extra) != 3 ||
+                !parseEnemyType(name, &type) || !isfinite(tileX) || !isfinite(tileY)) goto invalid;
+
+            float pixelX = tileX * 16.0f;
+            float pixelY = tileY * 16.0f;
+            int height = type == ENEMY_GOOMBA ? 16 : 24;
+            if (pixelX < 0 || pixelY < 0 || pixelX + 16 > width * 16 ||
+                pixelY + height > SCREEN_HEIGHT / FACTOR) goto invalid;
+            map.enemySpawns[map.enemyCount++] = (EnemySpawn){
+                type, { pixelX * FACTOR, pixelY * FACTOR }
+            };
+            continue;
+        }
+        if (section != SECTION_SCENERY) goto invalid;
 
         char name[32];
         char extra;
@@ -168,7 +235,7 @@ bool loadMap(enum MapSelection selection)
         };
     }
 
-    if (ferror(file)) goto invalid;
+    if (ferror(file) || !map.hasGoal) goto invalid;
 
     fclose(file);
     map.rows = row;
@@ -258,6 +325,7 @@ enum BlockReward hitMapBlock(int row, int col, bool smallMario)
             map.tileMap[row][col] = BLOCK_EMPTY;
             map.bumpRemaining[row][col] = 0.0f;
             scatterBrick(row, col);
+            return BLOCK_REWARD_BRICK_SMASH;
         }
     }
 
@@ -267,6 +335,17 @@ enum BlockReward hitMapBlock(int row, int col, bool smallMario)
 int getMapWidthPixels()
 {
     return map.cols * 16 * FACTOR;
+}
+
+const EnemySpawn *getMapEnemySpawns(int *count)
+{
+    *count = map.enemyCount;
+    return map.enemySpawns;
+}
+
+const MapGoal *getMapGoal(void)
+{
+    return map.hasGoal ? &map.goal : NULL;
 }
 
 void updateMap()

@@ -130,12 +130,12 @@ Mario initMario(Vector2 pos, enum MarioSize size)
     return mario;
 }
 
-void updateSmallAnimation(Mario *mario)
+static void updateSmallAnimation(Mario *mario, float dt)
 {
     int frame;
     float animationTime;
     float frameTime;
-    mario->frameTimeCounter += GetFrameTime();
+    mario->frameTimeCounter += dt;
 
     switch (mario->animation) {
         case IDLE:
@@ -151,7 +151,7 @@ void updateSmallAnimation(Mario *mario)
             mario->smallFrameRect.x = 4 * 16;
             break;
         case DIEING:
-            mario->smallFrameRect.x = 7 * 16;
+            mario->smallFrameRect.x = 6 * 16;
             break;
         case SWIMMING:
             animationTime = 0.3;
@@ -165,13 +165,15 @@ void updateSmallAnimation(Mario *mario)
         case CLIMBING:
             break;
         case FLAGPOLE:
+            mario->smallFrameRect.x = 16 *
+                (12 + (int)(mario->frameTimeCounter / 0.15f) % 2);
             break;
     }
 }
 
-void updateLargeAnimation(Mario *mario)
+static void updateLargeAnimation(Mario *mario, float dt)
 {
-    mario->frameTimeCounter += GetFrameTime();
+    mario->frameTimeCounter += dt;
 
     switch (mario->animation) {
         case IDLE:
@@ -183,6 +185,10 @@ void updateLargeAnimation(Mario *mario)
         case JUMPING:
             mario->largeFrameRect.x = 16 * 5;
             break;
+        case FLAGPOLE:
+            mario->largeFrameRect.x = 16 *
+                (12 + (int)(mario->frameTimeCounter / 0.15f) % 2);
+            break;
         case SKIDDING:
             mario->largeFrameRect.x = 16 * 4;
             break;
@@ -191,10 +197,33 @@ void updateLargeAnimation(Mario *mario)
     }
 }
 
-void updateMario(Mario *mario, BlockHit *blockHit)
+void animateMario(Mario *mario, float dt)
+{
+    if (mario->size == SMALL) updateSmallAnimation(mario, dt);
+    else updateLargeAnimation(mario, dt);
+}
+
+void walkMarioToCastle(Mario *mario, float dt)
+{
+    BlockHit ignored = { 0 };
+    mario->vel.x = 180.0f;
+    mario->vel.y += GRAVITY * dt;
+    if (mario->vel.y > 900.0f) mario->vel.y = 900.0f;
+    mario->animation = RUNNING;
+    moveMarioHorizontally(mario, dt);
+    moveMarioVertically(mario, dt, &ignored);
+    animateMario(mario, dt);
+}
+
+bool updateMario(Mario *mario, BlockHit *blockHit)
 {
     float dt = GetFrameTime();
+    bool jumped = false;
     if (dt > 1.0f / 30.0f) dt = 1.0f / 30.0f;
+    if (mario->invulnerableTimer > 0.0f) {
+        mario->invulnerableTimer -= dt;
+        if (mario->invulnerableTimer < 0.0f) mario->invulnerableTimer = 0.0f;
+    }
     *blockHit = (BlockHit){ 0 };
 
     if (!IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_RIGHT)) {
@@ -239,6 +268,7 @@ void updateMario(Mario *mario, BlockHit *blockHit)
     if (mario->onGround && IsKeyDown(KEY_SPACE)) {
         mario->onGround = false;
         mario->vel.y = JUMP_VELOCITY;
+        jumped = true;
     }
     if (!mario->onGround) {
         mario->animation = JUMPING;
@@ -252,14 +282,9 @@ void updateMario(Mario *mario, BlockHit *blockHit)
     moveMarioHorizontally(mario, dt);
     moveMarioVertically(mario, dt, blockHit);
 
-    switch (mario->size) {
-        case SMALL:
-            updateSmallAnimation(mario);
-            break;
-        case LARGE:
-            updateLargeAnimation(mario);
-            break;
-    }
+    animateMario(mario, dt);
+
+    return jumped;
 }
 
 void growMario(Mario *mario)
@@ -274,8 +299,24 @@ void growMario(Mario *mario)
     mario->frameTimeCounter = 0.0f;
 }
 
+bool hurtMario(Mario *mario)
+{
+    if (mario->invulnerableTimer > 0.0f) return false;
+    if (mario->size == SMALL) return true;
+
+    // Keep Mario's feet fixed as he shrinks.
+    mario->pos.y += 16 * FACTOR;
+    mario->height = 16 * FACTOR;
+    mario->size = SMALL;
+    mario->invulnerableTimer = 2.0f;
+    mario->frameTimeCounter = 0.0f;
+    return false;
+}
+
 void drawMario(Mario *mario, float cameraX)
 {
+    if (mario->invulnerableTimer > 0.0f &&
+        ((int)(mario->invulnerableTimer / 0.08f) % 2) == 0) return;
     Rectangle source = mario->size == SMALL
         ? mario->smallFrameRect : mario->largeFrameRect;
 

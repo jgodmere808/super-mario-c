@@ -1,0 +1,29 @@
+{
+  "source": "https://nesmaps.com/maps/SuperMarioBrothers/sprites/SuperMarioBrothersSprites.html",
+  "goomba_source": "https://nesmaps.com/maps/SuperMarioBrothers/sprites/LittleGoomba.gif",
+  "goomba_squashed_source": "https://www.spriters-resource.com/nes/supermariobros/asset/52570/",
+  "koopa_source": "https://nesmaps.com/maps/SuperMarioBrothers/sprites/KoopaTroopaGreen.gif",
+  "koopa_shell_source": "https://nesmaps.com/maps/SuperMarioBrothers/sprites/KoopaTroopaShellGreen.png",
+  "level_1_1_source": "https://nesmaps.com/maps/SuperMarioBrothers/SuperMarioBrosWorld1-1Map.html",
+  "notes": "Original Super Mario Bros. NES pixels. Walking GIF frames are placed side by side without scaling or recoloring. The squashed frame uses the NES enemy sheet's pixels recolored to match the walking GIF palette. Draw with nearest-neighbor scaling.",
+  "goomba": {
+    "image": "goomba.png",
+    "frame_width": 16,
+    "frame_height": 16,
+    "frame_count": 2,
+    "frame_duration_ms": 150,
+    "squashed_image": "goomba-squashed.png",
+    "squashed_width": 16,
+    "squashed_height": 8
+  },
+  "koopa_green": {
+    "image": "koopa-green.png",
+    "frame_width": 16,
+    "frame_height": 24,
+    "frame_count": 2,
+    "frame_duration_ms": 150,
+    "shell_image": "koopa-shell-green.png",
+    "shell_width": 16,
+    "shell_height": 14
+  }
+}

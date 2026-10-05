@@ -11,6 +11,10 @@ typedef struct _texture_map {
     Texture2D mysteryBox;
     Texture2D coin;
     Texture2D mushroom;
+    Texture2D goomba;
+    Texture2D goombaSquashed;
+    Texture2D koopaGreen;
+    Texture2D koopaShellGreen;
     Texture2D cloudSmall;
     Texture2D cloudMedium;
     Texture2D cloudLarge;

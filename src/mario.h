@@ -26,6 +26,7 @@ typedef struct _mario {
     enum MarioSize size;
     enum MarioAnimation animation;
     float frameTimeCounter;
+    float invulnerableTimer;
     bool facingLeft;
     bool onGround;
     Vector2 pos;
@@ -45,6 +46,9 @@ typedef struct {
 } BlockHit;
 
 Mario initMario(Vector2 pos, enum MarioSize size);
-void updateMario(Mario *mario, BlockHit *blockHit);
+bool updateMario(Mario *mario, BlockHit *blockHit);
+void animateMario(Mario *mario, float dt);
+void walkMarioToCastle(Mario *mario, float dt);
 void growMario(Mario *mario);
+bool hurtMario(Mario *mario);
 void drawMario(Mario *mario, float cameraX);
